@@ -18,7 +18,6 @@ module.exports = {
                             .addField("Offline", message.guild.members.filterArray(m => m.presence.status === 'offline'||m.presence.status === 'dnd').length, true);
 
                           //
-
             message.delete(60000);
             message.channel.send(embed).then(msg => msg.delete(60000));;
 
