@@ -1,7 +1,7 @@
 # WeCanBot
-Here you'll find thecode for The WeCanBot
+Here you'll find the code for The *WeCanBot*
 
-You have to set the prefix and the token in a config.json file.
+You have to set the prefix and the token in a *config.json* file.
 
 ## Commands:
 | Commandname                    | Alias | Description                          |
