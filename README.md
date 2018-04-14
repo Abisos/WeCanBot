@@ -1,7 +1,7 @@
 # WeCanBot
 Here you'll find thecode for The WeCanBot
 
-Prefix = We. | we.
+You have to set the prefix and the token in a config.json file.
 
 Commands:
  - help
