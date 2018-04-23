@@ -5,7 +5,7 @@ const {
   token
 } = require('./config.json');
 
-const Perms = require('./Perms.json');
+var Perms = null;
 
 /*Example for
 	const Permissionsraw = fs.readFileSync('./Perms.json');
@@ -18,6 +18,10 @@ const Perms = require('./Perms.json');
 	fs.writeFileSync('./Perms.json',returnPerms);
 */
 
+// generate Perms.json if not exists (due to its exclusion in .gitignore)
+if (!fs.existsSync('./Perms.json')) {
+  fs.writeFileSync('./Perms.json', '{}', 'utf8');
+}
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -32,7 +36,7 @@ for (const file of commandFiles) {
 
 client.on("ready", async () => {
 
-  console.log(`${client.user.username} is ready!)`);
+  console.log(`${client.user.username} is ready!`);
   try {
     let link = await client.generateInvite(["ADMINISTRATOR"]);
     console.log(link);
@@ -48,6 +52,13 @@ client.on("ready", async () => {
 
   //setup check for each guild the bot is in
   client.guilds.forEach(guild => {
+    // create permissions object in case the bot was invited to a guild before it
+    // was started and could never reach client.on("guildCreate").
+    // this can almost only happen in dev environment
+    if (!Permissions[guild.id]) {
+      Permissions[guild.id] = {};
+      Permissions[guild.id].maintenancemodebool = false;
+    }
     //adding new permissions if new commands are created
     client.commands.forEach(command => {
 
@@ -85,6 +96,7 @@ client.on("ready", async () => {
   fs.writeFileSync('./Perms.json', returnPerms);
 
   console.log("Fully Active now.");
+  Perms = require('./Perms.json');
 });
 
 client.on("guildCreate", async guild => {
