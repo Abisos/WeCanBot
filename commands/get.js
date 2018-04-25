@@ -1,8 +1,8 @@
 module.exports = {
   name: 'get',
-  description: 'Offers the User go get certain information. !!!In process!!!',
+  description: 'Offers the User to get certain information. !!!In process!!!',
   aliases: ["get", "g"],
-  usage: '[praefix+commandname keyword]',
+  usage: '[keyword]',
   cooldown: 2,
   guildOnly: true,
   args: true,

@@ -1,8 +1,8 @@
 module.exports = {
   name: 'stats',
-  description: 'Returns the users discordtag.',
+  description: 'Returns server statistics.',
   aliases: ["ss", "serverinfo", "server"],
-  usage: '[praefix+commandname]',
+  usage: '',
   cooldown: 4,
   guildOnly: true,
   execute(message, args, client) {
