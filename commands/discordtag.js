@@ -2,7 +2,7 @@ module.exports = {
   name: 'discordtag',
   description: 'Returns the users one and only Discordtag. (illuminati#3333)',
   aliases: ["dt", "tag"],
-  usage: '[ username/nickname/id/mention/none]',
+  usage: '[username/nickname/id/mention/none]',
   cooldown: 2,
   guildOnly: true,
   async execute(message, args) {

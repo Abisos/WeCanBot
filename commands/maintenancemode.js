@@ -2,7 +2,7 @@ module.exports = {
   name: 'maintenancemode',
   description: 'Starts Maintenancemode. The bot is only avaiable at the channel #bots. \n \t \t \t V1.0',
   aliases: ["smtm", "startmtm"],
-  usage: '[praefix+commandname]',
+  usage: '',
   cooldown: 60,
   guildOnly: true,
   execute(message, args, client) {

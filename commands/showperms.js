@@ -2,7 +2,7 @@ module.exports = {
   name: 'showperms',
   description: 'Prints all Permissions for the server you\`re in. V1.1 ',
   aliases: ['showp', 'showpermission'],
-  usage: '[command comandname ]',
+  usage: '[command comandname]',
   cooldown: 2,
   execute(message, args, client) {
     const fs = require('fs');
