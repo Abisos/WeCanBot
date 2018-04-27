@@ -2,8 +2,8 @@ module.exports = {
   name: 'poll',
   description: 'Create a custom poll with 2 to 9 options in the channel of the command message.',
   aliases: ["survey"],
-  usage: 'description, option 1, option 2, ... , option 9',
-  example: 'This is a poll, vote this, or that',
+  usage: 'question/description, option 1, option 2, ... , option 9',
+  example: 'Which one do you like more?, vote this, or that',
   cooldown: 60,
   guildOnly: true,
   execute(message, args, client) {
@@ -62,7 +62,7 @@ module.exports = {
       // post embed and append reaction emotes
       message.channel.send(embed).then(async function(m) {
         // add poll to global list
-        guild.polls.set(`${pollID}`, `${m.id}`);
+        guild.polls.set(`${pollID}`, `{"channelId":"${m.channel.id}", "messageId":"${m.id}", "options":"${args}"}`);
         // add reaction for each option
         for (let i = 0; i < args.length; i++) {
           await m.react(reactSymbol[i]);
