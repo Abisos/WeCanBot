@@ -2,7 +2,7 @@ module.exports = {
   name: 'endmaintenancemode',
   description: 'Ends the maintenancemode.',
   aliases: ["emtm", "endmtm"],
-  usage: '[praefix+commandname]',
+  usage: '',
   cooldown: 60,
   guildOnly: true,
   execute(message, args, Perms) {
