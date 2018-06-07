@@ -1,5 +1,6 @@
 const fs = require('fs');
 const Discord = require('discord.js');
+const streamAnnouncer = require('./streamAnnouncer.js');
 const {
   prefix,
   token
@@ -18,9 +19,13 @@ var Perms = null;
 	fs.writeFileSync('./Perms.json',returnPerms);
 */
 
-// generate Perms.json if not exists (due to its exclusion in .gitignore)
+// generate config files if they not exists (due to their exclusion in .gitignore)
 if (!fs.existsSync('./Perms.json')) {
-  fs.writeFileSync('./Perms.json', '{}', 'utf8');
+  fs.writeFileSync('./Perms.json', JSON.stringify({}), 'utf8');
+}
+
+if (!fs.existsSync('./GuildSettings.json')) {
+  fs.writeFileSync('./GuildSettings.json', JSON.stringify({}), 'utf8');
 }
 
 const client = new Discord.Client();
@@ -54,11 +59,13 @@ client.on("ready", async () => {
   client.guilds.forEach(guild => {
     // create permissions object in case the bot was invited to a guild before it
     // was started and could never reach client.on("guildCreate").
-    // this can almost only happen in dev environment
+    // this can almost only happen in dev environment and if the bot
+    // has a longer downtime while restarting
     if (!Permissions[guild.id]) {
       Permissions[guild.id] = {};
       Permissions[guild.id].maintenancemodebool = false;
     }
+
     //adding new permissions if new commands are created
     client.commands.forEach(command => {
 
@@ -95,6 +102,33 @@ client.on("ready", async () => {
   const returnPerms = JSON.stringify(Permissions, null, 2);
   fs.writeFileSync('./Perms.json', returnPerms);
 
+  /* ---- BEGIN GuildSettings ---- */
+  // parse settings file
+  const SettingsFile = fs.readFileSync(`./GuildSettings.json`);
+  const GuildSettings = JSON.parse(SettingsFile);
+
+  // build setting entrys for each guild the client is in
+  client.guilds.forEach(guild => {
+    // create settings object in case the bot was invited to a guild before it
+    // was started and could never reach client.on("guildCreate").
+    // this can almost only happen in dev environment and if the bot
+    // has a longer downtime while restarting
+    if (!GuildSettings[guild.id]) {
+      GuildSettings[guild.id] = {};
+    }
+
+    guild.settings = new Discord.Collection();
+
+    for(var settingName in GuildSettings[guild.id]) {
+      guild.settings[settingName] = GuildSettings[guild.id][settingName];
+    }
+  });
+
+  // write GuildSettings to file
+  const returnSettings =  JSON.stringify(GuildSettings, null, 2);
+  fs.writeFileSync('./GuildSettings.json', returnSettings);
+  /* ---- END GuildSettings ---- */
+
   console.log("Fully Active now.");
   Perms = require('./Perms.json');
 });
@@ -122,6 +156,23 @@ client.on("guildCreate", async guild => {
 
   const returnPerms = JSON.stringify(Permissions, null, 3);
   fs.writeFileSync('./Perms.json', returnPerms);
+
+  /* ---- BEGIN GuildSettings ---- */
+  // create entry in settings file for the new guild
+  // parse settings file
+  const SettingsFile = fs.readFileSync(`./GuildSettings.json`);
+  const GuildSettings = JSON.parse(SettingsFile);
+
+  // build setting entrys for the guild
+  if (!GuildSettings[guild.id]) {
+    GuildSettings[guild.id] = {};
+  }
+
+  guild.settings = new Discord.Collection();
+
+  const returnSettings = JSON.stringify(GuildSettings, null, 2);
+  fs.writeFileSync('./GuildSettings.json', returnSettings);
+  /* ---- END GuildSettings ---- */
 
   console.log(`The bot was added to a new server: ${guild.name}.`);
 });
@@ -191,4 +242,14 @@ client.on('message', async message => {
 
 });
 
+client.on('presenceUpdate', async (oldMember, newMember) => {
+  try {
+    streamAnnouncer.execute(oldMember,  newMember);
+  } catch (error) {
+    console.log(`${new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')} ERROR: presenceUpdate`);
+    console.error(error);
+  }
+});
+
+// process.on('unhandledRejection', err => console.error(`Uncaught Promise Rejection: \n${err.stack}`));
 client.login(token);
