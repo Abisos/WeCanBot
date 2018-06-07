@@ -47,6 +47,8 @@
        }).catch(() => message.reply('it seems like I can\'t DM you!')
          .then(msg => msg.delete(20000))
        );
-     message.delete(10000);
+
+      // delete message only in text channels because the bot can't perform delete action on a dm channel
+     if (message.channel.type != 'dm') message.delete(10000);
    },
  };
