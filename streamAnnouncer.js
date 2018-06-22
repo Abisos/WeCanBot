@@ -1,8 +1,24 @@
+/**
+ * This will post a RichEmbed to the announcement channel of a guild when a member
+ * starts a live stream on Twitch.
+ * It is required that the member has linked his Twitch account with discord,
+ * has the streamer mode activated and has set the name of a game in his
+ * Twitch stream settings.
+ * It also requires that the host of the bot has set a Twitch app ID in the bot
+ * configuration. The ID can be generated at https://dev.twitch.tv/.
+ * @param {GuildMember} [oldMember] The guild member before the presence change
+ * @param {GuildMember} [newMember] The guild member after the presence change
+ */
 module.exports = {
   execute(oldMember, newMember) {
     const fs = require('fs');
+    const util = require('./util.js')
     const Discord = require('discord.js');
+    const config = require('./config.json');
     var guild = oldMember.guild;
+
+    // check if twitch client id is set
+    if (!config.twitchClientID) return;
 
     // return if the guild has not set an announcement channel
     if (!guild.settings.announcementchannel) return;
@@ -24,33 +40,44 @@ module.exports = {
       return;
     }
 
-    // create the announcement list for the guild if necessary
-    if (!guild.announcements ) {
-        guild.announcements = new Discord.Collection();
-    }
+    // display a message when a member started a stream
+    if (newMember.presence.game && newMember.presence.game.type === 1) {
 
-    // display a message if a member started a stream
-    //if (newMember.presence.game && newMember.presence.game.name == "D.R.O.N.E." && newMember.presence.game.streaming) { // change line below to this to only announce drone streams. not sure if the game name is correct
-    if (newMember.presence.game && newMember.presence.game.streaming) {
-      // create embed
-      let embed = new Discord.RichEmbed()
-        .setColor("#4286f4")
-        .setTitle(`New Live Stream`)
-        .setDescription(`**${newMember.displayName}** is now streaming **${newMember.presence.game.name}** on Twitch:`)
-        .addField("Link:", `${newMember.presence.game.url}`)
-        .setTimestamp();
+      // create the announcement list for the guild if necessary
+      if (!guild.announcements ) {
+          guild.announcements = new Discord.Collection();
+      }
 
-      // post embed and add announcement to list
-      announcementChannel.send(embed).then(async function(m) {
-        guild.announcements.set(`${newMember.id}`, `{"messageId":"${m.id}"}`);
-      }).catch(console.error);
+      // get stream metadata and post announcement message
+      util.getTwitchStream(newMember.presence.game.url)
+      .then(data => {
+        // set thumbnail size
+        var thumbnailURL = data.thumbnail_url.replace("{width}", "112").replace("{height}", "63");
+
+        // get game name
+        util.getTwitchGame(data.game_id).then(gameName => {
+          // create embed
+          let embed = new Discord.RichEmbed()
+            .setColor("#fa006c")
+            .setFooter(`/${data.twitchname}`, 'attachment://twitchAvatar_190x190.png')
+            .setThumbnail(`${thumbnailURL}`)
+            .setAuthor(`${newMember.displayName}`, `${newMember.user.avatarURL}`)
+            .addField( `is now streaming on Twitch:`, `:red_circle: [LIVE: ${data.title}](${newMember.presence.game.url})`)
+            .addField("Game", `${gameName}`)
+            .attachFile('./twitchAvatar_190x190.png');
+
+          // post embed and add announcement to list
+          announcementChannel.send(embed).then(async function(m) {
+            guild.announcements.set(`${newMember.id}`, `{"messageId":"${m.id}"}`);
+          }).catch(console.error);
+        }).catch(console.error);
+      }).catch(err => {
+        console.log(`no stream found: ERROR ${err}`);
+      });
     }
 
     // delete messages if user stopped streaming
-    if (oldMember.presence.game != null
-      // && oldMember.presence.game.name == "D.R.O.N.E." // include this to only announce drone streams
-      && oldMember.presence.game.streaming
-      && !newMember.presence.game.streaming) {
+    if (oldMember.presence.game != null && oldMember.presence.game.type === 1) {
 
       if (guild.announcements.has(oldMember.id)) {
         let announcement = JSON.parse(guild.announcements.get(oldMember.id));
