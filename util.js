@@ -105,5 +105,32 @@ module.exports = {
 
       request(options, callback);
     });
+  },
+
+  /**
+  * Calculates the current level of a member based on his total score
+  * @param score The total score of the member
+  * @returns [ret] An object with the actual level, the score of the actual level
+  *                and the required score to the next level
+  */
+  calcLevel: function(score) {
+    let ret = {};
+    var requiredScore = 100
+    var currentScoreSubtrahend = 0;
+    var scoreStep = 55;
+    var level = 1;
+
+    while (score > requiredScore) {
+      level += 1;
+      currentScoreSubtrahend = requiredScore;
+      requiredScore += scoreStep;
+      scoreStep += 10;
+    }
+
+    ret.level = level;
+    ret.score = score - currentScoreSubtrahend;
+    ret.required = requiredScore;
+
+    return ret;
   }
 }

@@ -1,6 +1,8 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const streamAnnouncer = require('./streamAnnouncer.js');
+const sqlite3 = require('sqlite3').verbose();
+const db = require("./dbHandler.js");
 const {
   prefix,
   token
@@ -37,7 +39,6 @@ for (const file of commandFiles) {
   const command = require(`./commands/${file}`);
   client.commands.set(command.name, command);
 }
-
 
 client.on("ready", async () => {
 
@@ -109,7 +110,7 @@ client.on("ready", async () => {
 
   // build setting entrys for each guild the client is in
   client.guilds.forEach(guild => {
-    // create settings object in case the bot was invited to a guild before it
+    // create settings object and database in case the bot was invited to a guild before it
     // was started and could never reach client.on("guildCreate").
     // this can almost only happen in dev environment and if the bot
     // has a longer downtime while restarting
@@ -121,6 +122,13 @@ client.on("ready", async () => {
 
     for(var settingName in GuildSettings[guild.id]) {
       guild.settings[settingName] = GuildSettings[guild.id][settingName];
+    }
+
+    // load or create database
+    if (!guild.database) {
+      guild.database = new sqlite3.cached.Database(`./databases/${guild.id}.sqlite`);
+
+      db.initTables(guild.database);
     }
   });
 
@@ -174,13 +182,16 @@ client.on("guildCreate", async guild => {
   fs.writeFileSync('./GuildSettings.json', returnSettings);
   /* ---- END GuildSettings ---- */
 
+  /* ---- BEGIN Guild Database ---- */
+  guild.database = new sqlite3.cached.Database(`./databases/${guild.id}.sqlite`);
+  db.initTables(guild.database);
+  /* ---- END Guild Database ----*/
+
   console.log(`The bot was added to a new server: ${guild.name}.`);
 });
 
 client.on('message', async message => {
   if (!message.content.toLowerCase().startsWith(prefix) || message.author.bot) return;
-
-
 
   const args = message.content.slice(prefix.length).split(/ +/);
   const commandName = args.shift().toLowerCase();
@@ -242,6 +253,37 @@ client.on('message', async message => {
 
 });
 
+// assign scores to a user for each message he sends,
+// including base score and a bonus based on message length
+client.on('message', async message => {
+  // return if message is a command or from a bot
+  if (message.content.toLowerCase().startsWith(prefix) || message.author.bot) return;
+
+  // set base score plus bonus based on message length
+  let letters = message.content.length;
+  var score = Math.floor(Math.random() * (20 - 10) + 10);
+
+  switch (true) {
+    case letters > 40 && letters < 91:
+      score += 2;
+      break;
+    case letters >90 && letters <151:
+      score += 5;
+      break;
+    case letters >150 && letters <251:
+      score += 9;
+      break;
+    case letters >250:
+      score += 15;
+      break;
+    default:
+      score += 0;
+  }
+
+  // update the score of the member
+  db.updateScore(message.guild.database, message.author.id, score);
+});
+
 client.on('presenceUpdate', async (oldMember, newMember) => {
   try {
     streamAnnouncer.execute(oldMember,  newMember);
@@ -249,6 +291,12 @@ client.on('presenceUpdate', async (oldMember, newMember) => {
     console.log(`${new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')} ERROR: presenceUpdate`);
     console.error(error);
   }
+});
+
+client.on("disconnect", async() => {
+  client.guilds.forEach(guild => {
+    guild.database.close(); // dont know if it gets executed in case of a crash or if it is even necessary to close them programatically
+  });
 });
 
 // process.on('unhandledRejection', err => console.error(`Uncaught Promise Rejection: \n${err.stack}`));
