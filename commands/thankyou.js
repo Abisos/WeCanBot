@@ -1,7 +1,7 @@
 module.exports = {
   name: 'thankyou',
   description: 'Say thank you to a user.',
-  aliases: ["thx"],
+  aliases: ["thx","ty"],
   usage: '[praefix+commandname @Mention]',
   cooldown: 300,
   guildOnly: true,
