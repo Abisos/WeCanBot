@@ -10,27 +10,36 @@ module.exports = {
     const {
       prefix
     } = require('../config.json');
+    const util = require('util');
+    const setTimeoutPromise = util.promisify(setTimeout);
     let guild = message.guild;
 
     if(!message.guild.channels.find(gc => gc.type==='category'&&gc.name==='Voicelobby')) guild.createChannel('Voicelobby','category').then(c=> message.channel.send("Successfully created the category:"+c.name).then(msg => msg.delete(60000)).catch(console.error()));
 
     if(!args[1]) return message.reply("You have to pass the `Channelname` and your `Uptimeduration`. Example: `"+prefix+"lobby MyAwsomeChannel 120`").then(msg => msg.delete(60000));
     let duration= +args[1];
-    if(!duration||duration>300){ return message.reply("You have to pass a valid duration").then(msg => msg.delete(60000));}
+    if(!duration||duration>300){ return message.reply("You have to pass a valid duration").then(msg => msg.delete(30000));}
 
     let lobby;
 
     guild.createChannel(args[0],'voice', [{id:message.author,  allowed: ['CONNECT','MANAGE_CHANNELS']}],'WeCan Bot Lobbyautocreate.')
       .then((vc) => {
-        message.delete();
-        message.reply("Your Voicechannel "+vc.name+" was created.").then(msg => message.delete(60000));
+        message.reply("Your Voicechannel `"+vc.name+"` was created. Time left:`"+duration+" minutes`.").then(msg => msg.delete(30000));
         lobby =vc;
         try{
           lobby.setParent(message.guild.channels.find(gc => gc.type==='category'&&gc.name==='Voicelobby'));
-        }catch(e){console.log(e.stack)
+          message.delete();
+          setTimeoutPromise(duration*1000*60).then(()=>{lobby.delete("Time is up!")});
+
+        }catch(e){
+        console.log(e.stack);
         lobby.delete("An error occured");
-        message.channel.send("An error occured. Please message the author of the bot.");
+        message.channel.send("An error occured. Please message the author of the bot.").then(msg => msg.delete(120000));
+        message.delete();
+
+
         }
       }).catch(console.error());
-  },
+
+},
 };
