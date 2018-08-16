@@ -14,12 +14,12 @@ module.exports = {
       .addField("Owner", `${message.guild.owner.user.username}#${message.guild.owner.user.discriminator} - ${message.guild.owner.user.presence.status}`)
       .addField("Server createdAt", message.guild.createdAt.toString().slice(0, 33), true)
       .addField("Total Members", message.guild.memberCount, true)
-      .addField("Online", message.guild.members.filterArray(m => m.presence.status === 'online' || m.presence.status === 'idle').length, true)
-      .addField("Offline", message.guild.members.filterArray(m => m.presence.status === 'offline' || m.presence.status === 'dnd').length, true);
+      .addField("Online", message.guild.members.filter(m => m.presence.status === 'online' || m.presence.status === 'idle').size, true)
+      .addField("Offline", message.guild.members.filter(m => m.presence.status === 'offline' || m.presence.status === 'dnd').size, true);
 
     //
-    message.delete(60000);
-    message.channel.send(embed).then(msg => msg.delete(60000));;
+    message.delete(2000);
+    message.channel.send(embed).then(msg => msg.delete(60000));
 
   },
 };

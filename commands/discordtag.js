@@ -8,30 +8,15 @@ module.exports = {
   async execute(message, args) {
 
     const discord = require('discord.js');
+    const util = require('../util.js');
 
-    /*
-     * Since you have to give information about the author itself, if there are no arguments, you have to set the variables to the author.
-     */
+     let guildMember= util.findGuildMember(message,args[0]);
+     if(!guildMember){
+       message.delete();
+       return message.reply("Sorry, i couldn't find a Guildmember called`"+args[0]+"´.").then(m =>m.delete(30000));
+     }
 
-
-    let gUser = message.member; //gUser represents the author as a GuildMember(https://discord.js.org/#/docs/main/stable/class/GuildMember)
-    let nUser = gUser.user; //nUser represents the author as a User(https://discord.js.org/#/docs/main/stable/class/User)
-
-    if (args[0]) { // If there are arguments
-      gUser = message.mentions.members.first() // trying to find the user
-        ||
-        message.guild.members.find(m => m.user.username === args[0] || m.nickname === args[0] || m.id === args[0]) ||
-        message.member || await message.guild.fetchMember(message.author) || null;
-
-      if (gUser) {
-        nUser = gUser.user;
-      } else {
-        message.channel.send(`Cannot find **${args[0]}** as user on this server (\" *${message.guild.name}* \") `);
-        return;
-      }
-    }
-
-    let embed = new discord.RichEmbed().setAuthor(`${nUser.username}#${nUser.discriminator}`);
+    let embed = new discord.RichEmbed().setAuthor(`${guildMember.user.username}#${guildMember.user.discriminator}`);
     message.channel.send(embed).then(msg => msg.delete(60000));;
     message.delete(60000);
   },

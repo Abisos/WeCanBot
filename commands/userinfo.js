@@ -8,37 +8,26 @@ module.exports = {
   async execute(message, args) {
 
     const discord = require('discord.js');
+    const util = require('../util.js');
 
     /*
      * Since you have to give information about the author itself, if there are no arguments, you have to set the variables to the author.
      */
-
-
-    let gUser = message.member; //gUser represents the author as a GuildMember(https://discord.js.org/#/docs/main/stable/class/GuildMember)
-    let nUser = gUser.user; //nUser represents the author as a User(https://discord.js.org/#/docs/main/stable/class/User)
-
-    if (args[0]) { // If there are arguments
-      gUser = message.mentions.members.first() // trying to find the user
-        ||
-        message.guild.members.find(m => m.user.username === args[0] || m.nickname === args[0] || m.id === args[0]) ||
-        message.member || await message.guild.fetchMember(message.author) || null;
-      if (gUser) { //If there is an User found on the current server
-        nUser = gUser.user;
-      } else { //If there is no User found on the current server
-        message.channel.send(`Cannot find **${args[0]}** as user on this server (\" *${message.guild.name}* \") `);
-        return;
-      }
+    let guildMember= util.findGuildMember(message,args[0]);
+    if(!guildMember){
+      message.delete();
+      return message.reply("Sorry, i couldn't find a Guildmember called`"+args[0]+"´.").then(m =>m.delete(30000));
     }
 
     let embed = new discord.RichEmbed() // Creating a new RichEmbed(https://discord.js.org/#/docs/main/stable/class/RichEmbed)
-      .setAuthor(`${nUser.username}#${nUser.discriminator}`) // setting the Author
+      .setAuthor(`${guildMember.user.username}#${guildMember.user.discriminator}`) // setting the Author
       .setColor("#4286f4") // setting the color
-      .setThumbnail(nUser.displayAvatarURL) // setting the avatar
-      .addField("Id", nUser.id) // adding a new field : The User ID
-      .addField("Created At", nUser.createdAt.toUTCString(), true) // adding a new field : When the User joined the Server (Date:https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Date)
-      .addField("Joined Server At", gUser.joinedAt.toUTCString(), true); // adding a new field : When the Account was Created (Date:https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Date)
+      .setThumbnail(guildMember.user.displayAvatarURL) // setting the avatar
+      .addField("Id", guildMember.user.id) // adding a new field : The User ID
+      .addField("Created At", guildMember.user.createdAt.toUTCString(), true) // adding a new field : When the User joined the Server (Date:https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Date)
+      .addField("Joined Server At", guildMember.joinedAt.toUTCString(), true); // adding a new field : When the Account was Created (Date:https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Date)
     let acage;
-    let difference = Date.now() - nUser.createdTimestamp; // generating a String with the time passed since the AccountCreated-Timestamp
+    let difference = Date.now() - guildMember.user.createdTimestamp; // generating a String with the time passed since the AccountCreated-Timestamp
     if (Math.trunc(difference / 30758400000) === 1) {
       acage = `1 year`;
     } else {
@@ -58,7 +47,7 @@ module.exports = {
     }
 
     let joage;
-    let differencejoin = Date.now() - gUser.joinedTimestamp; // generating a String with the time passed since the Serverjoin-Timestamp
+    let differencejoin = Date.now() - guildMember.joinedTimestamp; // generating a String with the time passed since the Serverjoin-Timestamp
     if (Math.trunc(differencejoin / 30758400000) === 1) {
       joage = `1 year`;
     } else {
@@ -79,7 +68,7 @@ module.exports = {
 
     embed.addField("Account age", acage, true) // adding a new field : adding the Account age to the Embed
       .addField("Joined age", joage, true); // adding a new field : adding the Server join age to the Embed
-    message.delete(60000);
-    message.channel.send(embed).then(msg => msg.delete(60000));; // Sending the RichEmbed into the channel where the message was written in
+    message.delete(2000);
+    message.channel.send(embed).then(msg => msg.delete(60000)); // Sending the RichEmbed into the channel where the message was written in
   },
 };

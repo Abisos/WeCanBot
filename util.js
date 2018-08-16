@@ -132,5 +132,24 @@ module.exports = {
     ret.required = requiredScore;
 
     return ret;
+  },
+
+  /**
+  * Searches for a GuildMember and if there is no argument, it returns the author
+  *@param {message} message
+  *@param {string} argument
+  *@returns {GuildMember} GuildMember
+  */
+  findGuildMember: function (message, argument){
+    try{
+      if(!argument){
+          return message.member;
+      }
+      let guildMember = message.mentions.members.first()||message.guild.members.find(m => m.user.username === argument || m.nickname === argument || m.id === argument) || null;
+      return guildMember;
+
+  }catch(e){
+    console.log(e.stack);
   }
+}
 }

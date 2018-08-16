@@ -9,10 +9,13 @@
   "author": "Jonah",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^11.3.2",
+    "bufferutil": "^3.0.3",
+    "discord.js": "^11.4.2",
     "node-gyp": "^3.6.2",
     "nodemon": "^1.17.3",
-    "npm-install-all": "^1.1.21"
+    "npm-install-all": "^1.1.21",
+    "sqlite3": "^4.0.2",
+    "uws": "^9.14.0"
   },
   "nodemonConfig": {
     "ignore": [

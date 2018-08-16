@@ -35,7 +35,7 @@ module.exports = {
         returnString += `  Allowed Channels:[${allowedchannelsname.sort()}]\n`;
       });
       returnString += `\`\`\``;
-      message.delete(60000);
+      message.delete();
       return message.channel.send(returnString).then(msg => msg.delete(60000));;
 
     }

@@ -208,7 +208,7 @@ client.on('message', async message => {
 
 
   if (command.guildOnly && message.channel.type !== 'text') { //Checks if the command is allowed in DM
-    return message.reply('I can\'t execute that command inside DMs!');
+    return message.reply('I can\'t execute that command inside DMs!').then(m => message.delete(60000));
   }
 
   if (command.args && !args.length) { //Checks if args where send
@@ -218,7 +218,7 @@ client.on('message', async message => {
       reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
     }
 
-    return message.channel.send(reply);
+    return message.channel.send(reply).then(m => message.delete(60000));
   }
 
   if (!cooldowns.has(command.name)) { //Creates a new Cooldownlist if a new Command was created
@@ -237,7 +237,7 @@ client.on('message', async message => {
 
     if (now < expirationTime) {
       const timeLeft = (expirationTime - now) / 1000;
-      return message.reply(`please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`);
+      return message.reply(`please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`).then(m => {message.delete(); m.delete(30000);});
     }
 
     timestamps.set(message.author.id, now);
