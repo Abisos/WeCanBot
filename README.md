@@ -19,7 +19,7 @@ You have to set the prefix and the token in a *config.json* file.
 | [rank][ranklink]               | score    | Shows your rank on this server       |
 | [scoreboard][scoreboardlink]   | topten   | Shows the topten scoreboard          |
 | [thankyou][thankyoulink]       | ty       | Spread your thankiness               |
-
+| [lobby][lobbylink]             | room     | Create your private Voicechannel     |
 
 [helplink]:https://github.com/DRONEWecan/WeCanBot/blob/master/commands/help.js
 [userinfolink]:https://github.com/DRONEWecan/WeCanBot/blob/master/commands/userinfo.js
@@ -34,3 +34,4 @@ You have to set the prefix and the token in a *config.json* file.
 [ranklink]: https://github.com/DRONEWecan/WeCanBot/blob/master/commands/rank.js
 [scoreboardlink]:https://github.com/DRONEWecan/WeCanBot/blob/master/commands/scoreboard.js
 [thankyoulink]:https://github.com/DRONEWecan/WeCanBot/blob/master/commands/thankyou.js
+[lobbylink]: https://github.com/DRONEWecan/WeCanBot/blob/master/commands/lobby.js
