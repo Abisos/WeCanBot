@@ -18,7 +18,7 @@ module.exports = {
 
     if(!args[1]) return message.reply("You have to pass the `Channelname` and your `Uptimeduration`. Example: `"+prefix+"lobby MyAwsomeChannel 120`").then(msg => msg.delete(60000));
     let duration= +args[1];
-    if(!duration||duration>300){ return message.reply("You have to pass a valid duration").then(msg => msg.delete(30000));}
+    if(!duration||duration>300){ return message.reply("You have to pass a valid duration between 1 and 300 minutes.").then(msg => msg.delete(30000));}
 
     let lobby;
 
