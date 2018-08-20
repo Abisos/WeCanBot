@@ -5,7 +5,7 @@ module.exports = {
   usage: '[username/nickname/id/mention/none]',
   cooldown: 2,
   guildOnly: true,
-  async execute(message, args) {
+  async execute(message, args, client) {
 
     const discord = require('discord.js');
     const util = require('../util.js');
@@ -26,6 +26,7 @@ module.exports = {
       .addField("Id", guildMember.user.id) // adding a new field : The User ID
       .addField("Created At", guildMember.user.createdAt.toUTCString(), true) // adding a new field : When the User joined the Server (Date:https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Date)
       .addField("Joined Server At", guildMember.joinedAt.toUTCString(), true); // adding a new field : When the Account was Created (Date:https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Date)
+
     let acage;
     let difference = Date.now() - guildMember.user.createdTimestamp; // generating a String with the time passed since the AccountCreated-Timestamp
     if (Math.trunc(difference / 30758400000) === 1) {
@@ -68,6 +69,7 @@ module.exports = {
 
     embed.addField("Account age", acage, true) // adding a new field : adding the Account age to the Embed
       .addField("Joined age", joage, true); // adding a new field : adding the Server join age to the Embed
+      if(guildMember.id===client.user.id) embed.addField("GITHUB:\n https://github.com/DRONEWecan/WeCanBot");
     message.delete(2000);
     message.channel.send(embed).then(msg => msg.delete(60000)); // Sending the RichEmbed into the channel where the message was written in
   },
