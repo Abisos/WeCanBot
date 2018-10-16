@@ -33,41 +33,47 @@ module.exports = {
       message.guild.roles.find(role => role.name === args[2] || role.id === args[2]) || null;
     if (!channel && !role) return message.reply(`I couldn't find an channelmention or role with the name/id: ${args[2]}`).then(msg => msg.delete(30000));;
 
+
+    const allowedchannels = client.permissions[message.guild.id][command.name].allowedchannels;
+    const allowedroles = client.permissions[message.guild.id][command.name].allowedroles;
+
+
     if (channel && Add) { //Channel
-      if (client.permissions[message.guild.id][command.name].allowedchannels.includes(channel.id)) return message.reply(`Ther is already a Permission for \"${command.name}\" in #${channel.name}`).then(msg => msg.delete(30000));;
-      if (client.permissions[message.guild.id][command.name].allowedchannels.includes("all")) {
+      if (allowedchannels.includes(channel.id)) return message.reply(`Ther is already a Permission for \"${command.name}\" in #${channel.name}`).then(msg => msg.delete(30000));;
+      if (allowedchannels.includes("all")) {
         client.permissions[message.guild.id][command.name].allowedchannels = [`${channel.id}`];
         message.reply("Succesfully added permission.").then(msg => msg.delete(15000));;
       } else {
-        client.permissions[message.guild.id][command.name].allowedchannels.push(channel.id);
+        allowedchannels.push(channel.id);
         message.reply("Succesfully added permission.").then(msg => msg.delete(15000));;
       }
     } else if (channel && Del) {
-      if (client.permissions[message.guild.id][command.name].allowedchannels.includes(channel.id)) {
-        client.permissions[message.guild.id][command.name].allowedchannels.splice(client.permissions[message.guild.id][command.name].allowedchannels.indexOf(channel.id), 1);
+      if (allowedchannels.includes(channel.id)) {
+      allowedchannels.splice(allowedchannels.indexOf(channel.id), 1);
         //Checks if the Deleted Element is the last one -> add "all" again
-        if(client.permissions[message.guild.id][command.name].allowedchannels.length==0){
-          client.permissions[message.guild.id][command.name].allowedchannels.push("all");
+        if(allowedchannels.length==0){
+          allowedchannels.push("all");
         }
         message.reply("Succesfully deleted permission.").then(msg => msg.delete(15000));;
       } else {
         message.reply(`There is no Permission for ${command.name} for the channel ${channel.name}`).then(msg => msg.delete(20000));;
       }
     } else if (role && Add) { //Role
-      if (client.permissions[message.guild.id][command.name].allowedroles.includes(role.name)) return message.reply(`Ther is already a Permission for \"${command.name}\" for ${role.name}`).then(msg => msg.delete(15000));;
-      if (client.permissions[message.guild.id][command.name].allowedroles.includes("all")) {
+      if (allowedroles.includes(role.name)) return message.reply(`Ther is already a Permission for \"${command.name}\" for ${role.name}`).then(msg => msg.delete(15000));;
+      if (allowedroles.includes("all")) {
         client.permissions[message.guild.id][command.name].allowedroles = [`${role.name}`];
         message.reply("Succesfully added permission.").then(msg => msg.delete(15000));;
       } else {
-        client.permissions[message.guild.id][command.name].allowedroles.push(role.name);
+        allowedroles.push(role.name);
         message.reply("Succesfully added permission.").then(msg => msg.delete(15000));;
       }
     } else {
-      if (client.permissions[message.guild.id][command.name].allowedroles.includes(role.name)) {
-        client.permissions[message.guild.id][command.name].allowedroles.splice(client.permissions[message.guild.id][command.name].allowedroles.indexOf(role.name), 1);
+
+      if (allowedroles.includes(role.name)) {
+        allowedroles.splice(allowedroles.indexOf(role.name), 1);
         //Checks if the Deleted Element is the last one -> add "all" again
-        if(client.permissions[message.guild.id][command.name].allowedroles.length==0){
-          client.permissions[message.guild.id][command.name].allowedroles.push("all");
+        if(allowedroles.length==0){
+          allowedroles.push("all");
         }
         message.reply("Succesfully deleted Permission").then(msg => msg.delete(15000));;
       } else {
