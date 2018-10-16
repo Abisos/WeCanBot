@@ -45,6 +45,10 @@ module.exports = {
     } else if (channel && Del) {
       if (client.permissions[message.guild.id][command.name].allowedchannels.includes(channel.id)) {
         client.permissions[message.guild.id][command.name].allowedchannels.splice(client.permissions[message.guild.id][command.name].allowedchannels.indexOf(channel.id), 1);
+        //Checks if the Deleted Element is the last one -> add "all" again
+        if(client.permissions[message.guild.id][command.name].allowedchannels.length==0){
+          client.permissions[message.guild.id][command.name].allowedchannels.push("all");
+        }
         message.reply("Succesfully deleted permission.").then(msg => msg.delete(15000));;
       } else {
         message.reply(`There is no Permission for ${command.name} for the channel ${channel.name}`).then(msg => msg.delete(20000));;
@@ -61,6 +65,10 @@ module.exports = {
     } else {
       if (client.permissions[message.guild.id][command.name].allowedroles.includes(role.name)) {
         client.permissions[message.guild.id][command.name].allowedroles.splice(client.permissions[message.guild.id][command.name].allowedroles.indexOf(role.name), 1);
+        //Checks if the Deleted Element is the last one -> add "all" again
+        if(client.permissions[message.guild.id][command.name].allowedroles.length==0){
+          client.permissions[message.guild.id][command.name].allowedroles.push("all");
+        }
         message.reply("Succesfully deleted Permission").then(msg => msg.delete(15000));;
       } else {
         message.reply(`There is no Permission for ${command.name} for the role ${role.name}`).then(msg => msg.delete(20000));;
