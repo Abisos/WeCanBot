@@ -7,8 +7,6 @@ module.exports = {
   execute(message, args, client) {
     const fs = require('fs');
 
-    const Permissionsraw = fs.readFileSync('./Perms.json');
-    const Permissions = JSON.parse(Permissionsraw);
     if (!args[0]) {
       let returnString = `Commandpermissions for the Server: ${message.guild.name} \n \`\`\`css\n`;
       let longestCommandname = 0;
@@ -19,12 +17,12 @@ module.exports = {
         returnString += `${c.name}: `;
         for (var i = 0; i < longestCommandname - c.name.length + 2; i++) returnString += ` `;
 
-        returnString += `Allowed Roles:[${Permissions[message.guild.id][c.name].allowedroles}]\n`;
+        returnString += `Allowed Roles:[${client.permissions[message.guild.id][c.name].allowedroles}]\n`;
         for (var i = 0; i < longestCommandname + 2; i++) {
           returnString += ` `;
         }
         var allowedchannelsname = [];
-        Permissions[message.guild.id][c.name].allowedchannels.forEach(element => {
+        client.permissions[message.guild.id][c.name].allowedchannels.forEach(element => {
           if (element !== "all") {
             allowedchannelsname.push(client.channels.get(element).name);
           } else {
