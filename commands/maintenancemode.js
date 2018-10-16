@@ -8,16 +8,13 @@ module.exports = {
   execute(message, args, client) {
     const fs = require('fs');
 
-    const Permissionsraw = fs.readFileSync('./Perms.json');
-    const Permissions = JSON.parse(Permissionsraw);
-
-    if (Permissions[message.guild.id].maintenancemodebool) {
+    if (client.permissions[message.guild.id].maintenancemodebool) {
       message.channel.send("Maintenancemode is already active.").then(msg => msg.delete(9000));;
     } else {
-      Permissions[message.guild.id].maintenancemodebool = true;
+      client.permissions[message.guild.id].maintenancemodebool = true;
       message.channel.send("Maintenancemode activated.").then(msg => msg.delete(9000));;
     }
-    const returnPerms = JSON.stringify(Permissions, null, 2);
+    const returnPerms = JSON.stringify(client.permissions, null, 2);
     fs.writeFileSync('./Perms.json', returnPerms);
     message.delete(9000);
   },

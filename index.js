@@ -8,8 +8,6 @@ const {
   token
 } = require('./config.json');
 
-var Perms = null;
-
 /*Example for
 	const Permissionsraw = fs.readFileSync('./Perms.json');
 	const Permissions = JSON.parse(Permissionsraw);
@@ -32,6 +30,7 @@ if (!fs.existsSync('./GuildSettings.json')) {
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
+client.permissions = new Discord.Collection();
 const cooldowns = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands');
 
@@ -54,7 +53,7 @@ client.on("ready", async () => {
   });
 
   const Permissionsraw = fs.readFileSync('./Perms.json');
-  const Permissions = JSON.parse(Permissionsraw);
+  client.permissions = JSON.parse(Permissionsraw);
 
   //setup check for each guild the bot is in
   client.guilds.forEach(guild => {
@@ -62,16 +61,16 @@ client.on("ready", async () => {
     // was started and could never reach client.on("guildCreate").
     // this can almost only happen in dev environment and if the bot
     // has a longer downtime while restarting
-    if (!Permissions[guild.id]) {
-      Permissions[guild.id] = {};
-      Permissions[guild.id].maintenancemodebool = false;
+    if (!client.permissions[guild.id]) {
+      client.permissions[guild.id] = {};
+      client.permissions[guild.id].maintenancemodebool = false;
     }
 
     //adding new permissions if new commands are created
     client.commands.forEach(command => {
 
-      if (!Permissions[guild.id][command.name]) {
-        Permissions[guild.id][command.name] = {
+      if (!client.permissions[guild.id][command.name]) {
+        client.permissions[guild.id][command.name] = {
           allowedroles: ["all"],
           allowedchannels: ["all"]
         };
@@ -80,7 +79,7 @@ client.on("ready", async () => {
     });
 
     // deleting permissions if a command was deleted
-    const jsobarray = Object.entries(Permissions[guild.id]);
+    const jsobarray = Object.entries(client.permissions[guild.id]);
 
     for (var i = 1; i < jsobarray.length; i++) {
 
@@ -93,14 +92,14 @@ client.on("ready", async () => {
       });
 
       if (!approved) {
-        delete Permissions[guild.id][jsobarray[i][0]];
+        delete client.permissions[guild.id][jsobarray[i][0]];
         console.log(`deleted`);
       }
     }
 
   });
 
-  const returnPerms = JSON.stringify(Permissions, null, 2);
+  const returnPerms = JSON.stringify(client.permissions, null, 2);
   fs.writeFileSync('./Perms.json', returnPerms);
 
   /* ---- BEGIN GuildSettings ---- */
@@ -138,20 +137,19 @@ client.on("ready", async () => {
   /* ---- END GuildSettings ---- */
 
   console.log("Fully Active now.");
-  Perms = require('./Perms.json');
 });
 
 client.on("guildCreate", async guild => {
 
   const Permissionsraw = fs.readFileSync('./Perms.json');
-  const Permissions = JSON.parse(Permissionsraw);
-  if (!Permissions[guild.id]) {
+  client.permissions = JSON.parse(Permissionsraw);
+  if (!client.permissions[guild.id]) {
     console.log("Creating permission model");
-    Permissions[guild.id] = {};
-    Permissions[guild.id].maintenancemodebool = false;
+    client.permissions[guild.id] = {};
+    client.permissions[guild.id].maintenancemodebool = false;
     client.commands.forEach(async c => {
       console.log(`Adding permission for : ${c.name}`);
-      Permissions[guild.id][c.name] = {
+      client.permissions[guild.id][c.name] = {
         allowedroles: ["all"],
         allowedchannels: ["all"]
       };
@@ -159,10 +157,10 @@ client.on("guildCreate", async guild => {
   }
   const botstest = await guild.channels.find(GuildChannel => GuildChannel.name === "bots");
   if (botstest) {
-    Permissions[guild.id].maintenancemodebool = true;
+    client.permissions[guild.id].maintenancemodebool = true;
   }
 
-  const returnPerms = JSON.stringify(Permissions, null, 3);
+  const returnPerms = JSON.stringify(client.permissions, null, 3);
   fs.writeFileSync('./Perms.json', returnPerms);
 
   /* ---- BEGIN GuildSettings ---- */
@@ -201,9 +199,9 @@ client.on('message', async message => {
 
   if (!command) return;
   if (message.channel.type === "text") {
-    if (Perms[message.guild.id].maintenancemodebool && message.channel.name !== "bots") return;
-    if (!Perms[message.guild.id][command.name].allowedchannels.includes("all") && !Perms[message.guild.id][command.name].allowedchannels.includes(message.channel.id)) return;
-    if (!Perms[message.guild.id][command.name].allowedroles.includes("all") && !Perms[message.guild.id][command.name].allowedroles.includes(message.role.name)) return;
+    if (client.permissions[message.guild.id].maintenancemodebool && message.channel.name !== "bots") return;
+    if (!client.permissions[message.guild.id][command.name].allowedchannels.includes("all") && !client.permissions[message.guild.id][command.name].allowedchannels.includes(message.channel.id)) return;
+    if (!client.permissions[message.guild.id][command.name].allowedroles.includes("all") && !client.permissions[message.guild.id][command.name].allowedroles.includes(message.member.highestRole.name)) return;
   }
 
 
