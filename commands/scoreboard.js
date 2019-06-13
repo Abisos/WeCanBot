@@ -40,6 +40,6 @@ module.exports = {
       .addField(`Score:`, `${topTenScore}`, true);
 
     message.delete(5000);
-    message.channel.send(embed).catch(console.error);
+    message.channel.send(embed).then(msg => msg.delete(20000)).catch(console.error);
   },
 };

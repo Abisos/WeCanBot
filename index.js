@@ -206,7 +206,7 @@ client.on('message', async message => {
 
 
   if (command.guildOnly && message.channel.type !== 'text') { //Checks if the command is allowed in DM
-    return message.reply('I can\'t execute that command inside DMs!').then(m => message.delete(60000));
+    return message.reply('I can\'t execute that command inside DMs!');
   }
 
   if (command.args && !args.length) { //Checks if args where send
@@ -255,7 +255,7 @@ client.on('message', async message => {
 // including base score and a bonus based on message length
 client.on('message', async message => {
   // return if message is a command or from a bot
-  if (message.content.toLowerCase().startsWith(prefix) || message.author.bot) return;
+  if (message.content.toLowerCase().startsWith(prefix) || message.author.bot || message.channel.type == 'dm') return;
 
   // set base score plus bonus based on message length
   let letters = message.content.length;

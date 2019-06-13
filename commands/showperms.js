@@ -4,6 +4,7 @@ module.exports = {
   aliases: ['showp', 'showpermission'],
   usage: '[command comandname]',
   cooldown: 2,
+  guildOnly: true,
   execute(message, args, client) {
     const fs = require('fs');
 
